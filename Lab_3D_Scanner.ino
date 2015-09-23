@@ -12,13 +12,13 @@
 
 // constants won't change. They're used here to
 // set pin numbers:
-const int buttonPin = 5;     // the number of the pushbutton pin
-const int platformPin =  4;      // the number of the LED pin
-const int topLimitPin = 7;
-const int bottomLimitPin = 6;
-const int ledPin = 3;
-const int motorDirPin = 9;
-const int motorStepPin = 8;
+const int buttonPin = 13;     // the number of the pushbutton pin
+const int platformPin =  7;      // the number of the LED pin
+const int topLimitPin = 4;
+const int bottomLimitPin = 5;
+const int ledPin = 11;
+const int motorDirPin = 2;
+const int motorStepPin = 3;
 
 
 const float FADE_SPEED = .01;
@@ -26,6 +26,7 @@ const float FADE_SPEED = .01;
 const int STATE_WAIT = 0;
 const int STATE_RUN = 1;
 const int STATE_DONE = 2;
+const int STATE_TEST_MOTOR = -1;
 
 
 //set up the accelStepper intance
@@ -36,13 +37,14 @@ float speed = .5;
 float fadeValue = 0;
 
 int state = 0;
-int platformState = LOW;
+int platformState = HIGH;
 
 Bounce startBtn = Bounce(); 
 Bounce topLimitBtn = Bounce();
 Bounce bottomLimitBtn = Bounce();
 
-int stepperSpeed = 20000;  
+int totalSpeed = 1000;
+int stepperSpeed = -totalSpeed;  
 
 void advanceState()
 {
@@ -55,7 +57,7 @@ void advanceState()
 
     case STATE_WAIT:
 
-      platformState = LOW;
+      platformState = HIGH;
       break;
 
     case STATE_RUN:
@@ -65,13 +67,13 @@ void advanceState()
       //stepper.moveTo(500000);
       //stepper.setSpeed(2000);
       
-      platformState = HIGH;
+      platformState = LOW;
       break;
 
     case STATE_DONE:
 
       writeLEDButton(0);
-      platformState = LOW;
+      platformState = HIGH;
       break;
   }
 
@@ -107,7 +109,7 @@ void setup() {
   //stepper.setMaxSpeed(1000);
   //stepper.setAcceleration(500);
 
-  stepper.setMaxSpeed(stepperSpeed);
+  stepper.setMaxSpeed(totalSpeed);
   stepper.setSpeed(stepperSpeed);    
  
   //Serial.begin(9600); 
@@ -130,7 +132,11 @@ void fadeButton()
 void writeLEDButton(int _val)
 {
   if (_val < 0) { _val = 0;}
+
+  Serial.println(_val);
+
   analogWrite(ledPin, _val);
+
 }
 
 
@@ -141,6 +147,9 @@ void loop() {
   bottomLimitBtn.update();
 
   switch (state) {
+
+    case STATE_TEST_MOTOR:
+      stepper.runSpeed();
 
     case STATE_WAIT:
       fadeButton();
@@ -155,7 +164,11 @@ void loop() {
 
     case STATE_RUN:
 
-
+      Serial.print(digitalRead(topLimitPin));
+      Serial.print(" ");
+      Serial.print(digitalRead(bottomLimitPin));
+      Serial.println("");
+      
       if (topLimitBtn.fell())
       {
         Serial.println("TOP"); 
