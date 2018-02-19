@@ -1,7 +1,10 @@
 # 3dScanner_Arduino
 
-3D scanner using a linear rail with two limit switches and a button with LED output
+A Havas MadSci Lab project by Adam Lassy and Steve Cordova
 
+Arduino sketch to contrl a linear rail with two limit switches. Additonally there is a "start" button with LED feedback. The sketch also opens and closes a relay board.
+
+Project write up: 
 
 
 Dependent library:
